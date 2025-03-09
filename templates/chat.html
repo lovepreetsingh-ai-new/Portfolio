@@ -1,0 +1,233 @@
+{% load static %}
+<!DOCTYPE html>
+<!-- Coding By CodingNepal - www.codingnepalweb.com -->
+<html lang="en" dir="ltr">
+<head>
+  <title>Lovepreet Singh - Software Engineer</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+
+	<link rel="stylesheet" href="{% static 'css/open-iconic-bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/animate.css' %}">
+	<link rel="stylesheet" href="{% static 'css/animate.css' %}">
+
+	<link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+
+	{% comment %} <link rel="stylesheet" href="{% static 'css/aos.css' %}"> {% endcomment %}
+
+	<link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
+
+	<link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+	<link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/styleChat.css' %}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+<body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
+	
+	<nav class="navbar navbar-expand-lg navbar-dark ftco_navbar ftco-navbar-light site-navbar-target" id="ftco-navbar">
+		<div class="container">
+			<a class="navbar-brand" href="/">Lovepreet Singh</a>
+			<button class="navbar-toggler js-fh5co-nav-toggle fh5co-nav-toggle" type="button" data-toggle="collapse"
+				data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="oi oi-menu"></span> Menu
+			</button>
+
+			<div class="collapse navbar-collapse" id="ftco-nav">
+				<ul class="navbar-nav nav ml-auto">
+					<li class="nav-item"><a href="/" class="nav-link"><span>Home</span></a></li>
+					<li class="nav-item"><a href="/#about" class="nav-link"><span>About</span></a></li>
+					<li class="nav-item"><a href="/#resume" class="nav-link"><span>Resume</span></a></li>
+					<li class="nav-item"><a href="/#skills" class="nav-link"><span>Skills</span></a></li>
+					<li class="nav-item"><a href="/#services" class="nav-link"><span>Projects</span></a></li>
+					<li class="nav-item"><a href="/#blog" class="nav-link"><span>My Blog</span></a></li>
+					<li class="nav-item"><a href="/#contact" class="nav-link"><span>Contact</span></a></li>
+					<li class="nav-item"><a href="/chat" class="nav-link"><span>AI Chat</span></a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+        <!-- Chats container -->
+        <div class="chat-container"></div>
+        
+        <!-- Typing container -->
+        <div class="typing-container">
+          <div class="typing-content">
+            <div class="typing-textarea">
+              <textarea id="chat-input" spellcheck="false" placeholder="Enter a prompt here" required></textarea>
+              <span id="send-btn" class="material-symbols-rounded">send</span>
+            </div>
+            <div class="typing-controls">
+              <span id="theme-btn" class="material-symbols-rounded">light_mode</span>
+              <span id="delete-btn" class="material-symbols-rounded">delete</span>
+          </div>
+        </div>
+        <script>
+          const chatInput = document.querySelector("#chat-input");
+          const sendButton = document.querySelector("#send-btn");
+          const chatContainer = document.querySelector(".chat-container");
+          const themeButton = document.querySelector("#theme-btn");
+          const deleteButton = document.querySelector("#delete-btn");
+          
+          let userText = null;
+          const API_KEY = "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"; // Paste your API key here
+          
+          const loadDataFromLocalstorage = () => {
+              // Load saved chats and theme from local storage and apply/add on the page
+              const themeColor = localStorage.getItem("themeColor");
+          
+              document.body.classList.toggle("light-mode", themeColor === "light_mode");
+              themeButton.innerText = document.body.classList.contains("light-mode") ? "dark_mode" : "light_mode";
+          
+              const defaultText = `<div class="default-text">
+                                      <h1>Lovepreet's AI</h1>
+                                      <p>Start a conversation and explore the power of AI.<br> Your chat history will be displayed here.</p>
+                                  </div>`
+          
+              chatContainer.innerHTML = localStorage.getItem("all-chats") || defaultText;
+              chatContainer.scrollTo(0, chatContainer.scrollHeight); // Scroll to bottom of the chat container
+          }
+          
+          const createChatElement = (content, className) => {
+              // Create new div and apply chat, specified class and set html content of div
+              const chatDiv = document.createElement("div");
+              chatDiv.classList.add("chat", className);
+              chatDiv.innerHTML = content;
+              return chatDiv; // Return the created chat div
+          }
+          
+          const getChatResponse = async (incomingChatDiv) => {
+              const API_URL = "https://api.openai.com/v1/completions";
+              const pElement = document.createElement("p");
+          
+              // Define the properties and data for the API request
+              const requestOptions = {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${API_KEY}`
+                  },
+                  body: JSON.stringify({
+                      model: "text-davinci-003",
+                      prompt: pr+"**"+userText+"**",
+                      max_tokens: 2048,
+                      temperature: 0.2,
+                      n: 1,
+                      stop: null
+                  })
+              }
+          
+              // Send POST request to API, get response and set the reponse as paragraph element text
+              try {
+                  const response = await (await fetch(API_URL, requestOptions)).json();
+                  console.log(response);
+                  pElement.textContent = response.choices[0].text.trim();
+              } catch (error) { // Add error class to the paragraph element and set error text
+                  pElement.classList.add("error");
+                  pElement.textContent = "Oops! Your Daily Quota is utilized. Please try again later.";
+              }
+          
+              // Remove the typing animation, append the paragraph element and save the chats to local storage
+              incomingChatDiv.querySelector(".typing-animation").remove();
+              incomingChatDiv.querySelector(".chat-details").appendChild(pElement);
+              localStorage.setItem("all-chats", chatContainer.innerHTML);
+              chatContainer.scrollTo(0, chatContainer.scrollHeight);
+          }
+          
+          const copyResponse = (copyBtn) => {
+              // Copy the text content of the response to the clipboard
+              const reponseTextElement = copyBtn.parentElement.querySelector("p");
+              navigator.clipboard.writeText(reponseTextElement.textContent);
+              copyBtn.textContent = "done";
+              setTimeout(() => copyBtn.textContent = "content_copy", 1000);
+          }
+          
+          const showTypingAnimation = () => {
+              // Display the typing animation and call the getChatResponse function
+              const html = `<div class="chat-content">
+                              <div class="chat-details">
+                                  <img src="{% static 'images/about.jpg' %}" alt="chatbot-img">
+                                  <div class="typing-animation">
+                                      <div class="typing-dot" style="--delay: 0.2s"></div>
+                                      <div class="typing-dot" style="--delay: 0.3s"></div>
+                                      <div class="typing-dot" style="--delay: 0.4s"></div>
+                                  </div>
+                              </div>
+                              <span onclick="copyResponse(this)" class="material-symbols-rounded">content_copy</span>
+                          </div>`;
+              // Create an incoming chat div with typing animation and append it to chat container
+              const incomingChatDiv = createChatElement(html, "incoming");
+              chatContainer.appendChild(incomingChatDiv);
+              chatContainer.scrollTo(0, chatContainer.scrollHeight);
+              getChatResponse(incomingChatDiv);
+          }
+          
+          const handleOutgoingChat = () => {
+              pr="Your are lovepreet singh, working at IT industry and have experience in RPA,PYthon,Blueprism,Django,Flask,Power APPs, other programming languages. You are from punjab india. you will be getting prompt enclosed in ** **. If in prompt it is asked who are you and all you should reply on the info i gave.Your answers should be compact ant to the mark."
+              userText = chatInput.value.trim(); // Get chatInput value and remove extra spaces
+              
+              if(!userText) return; // If chatInput is empty return from here
+          
+              // Clear the input field and reset its height
+              chatInput.value = "";
+              chatInput.style.height = `${initialInputHeight}px`;
+          
+              const html = `<div class="chat-content">
+                              <div class="chat-details">
+                                  <img src="{% static 'images/user.jpg' %}" alt="user-img">
+                                  <p>${userText}</p>
+                              </div>
+                          </div>`;
+          
+              // Create an outgoing chat div with user's message and append it to chat container
+              const outgoingChatDiv = createChatElement(html, "outgoing");
+              chatContainer.querySelector(".default-text")?.remove();
+              chatContainer.appendChild(outgoingChatDiv);
+              chatContainer.scrollTo(0, chatContainer.scrollHeight);
+              setTimeout(showTypingAnimation, 500);
+          }
+          
+          deleteButton.addEventListener("click", () => {
+              // Remove the chats from local storage and call loadDataFromLocalstorage function
+              if(confirm("Are you sure you want to delete all the chats?")) {
+                  localStorage.removeItem("all-chats");
+                  loadDataFromLocalstorage();
+              }
+          });
+          
+          themeButton.addEventListener("click", () => {
+              // Toggle body's class for the theme mode and save the updated theme to the local storage 
+              document.body.classList.toggle("light-mode");
+              localStorage.setItem("themeColor", themeButton.innerText);
+              themeButton.innerText = document.body.classList.contains("light-mode") ? "dark_mode" : "light_mode";
+          });
+          
+          const initialInputHeight = chatInput.scrollHeight;
+          
+          chatInput.addEventListener("input", () => {   
+              // Adjust the height of the input field dynamically based on its content
+              chatInput.style.height =  `${initialInputHeight}px`;
+              chatInput.style.height = `${chatInput.scrollHeight}px`;
+          });
+          
+          chatInput.addEventListener("keydown", (e) => {
+              // If the Enter key is pressed without Shift and the window width is larger 
+              // than 800 pixels, handle the outgoing chat
+              if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+                  e.preventDefault();
+                  handleOutgoingChat();
+              }
+          });
+          
+          loadDataFromLocalstorage();
+          sendButton.addEventListener("click", handleOutgoingChat);
+          </script>
+      </body>
+    </html>
+
+   

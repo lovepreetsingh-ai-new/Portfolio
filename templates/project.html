@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body %}
+
+
+
+    <section class="ftco-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 ftco-animate">
+            <h2 class="mb-3">{{ project.name }}</h2>
+            <p>
+              <img src="{% static project.projectimgurl %}" alt="" class="img-fluid">
+            </p>
+            {{ project.description|safe }}
+            <DIV>Feedback: {{ project.feedback|safe }}</DIV>
+
+            <DIV>Fte Savings: {{ project.fte_savings|safe }}</DIV>
+
+            <DIV>Client name: {{ project.client_name|safe }}</DIV>
+
+                
+          <div class="tag-widget post-tag-container mb-5 mt-5">
+            <div class="about-author d-flex p-4 bg-dark">
+              <div class="bio mr-5">
+                <img src="{% static 'images/about.jpg' %}" alt="Image placeholder" class="img-fluid mb-4">
+              </div>
+              <div class="desc">
+                <h3>Lovepreet Singh</h3>
+                <p>As a Software Developer in the IT industry, I specialize in Python, RPA using Blue Prism, and Power Apps. My expertise extends to Django and various web technologies, enabling me to create dynamic and efficient web solutions that streamline processes and enhance user experiences.</p>
+                
+              </div>
+            </div>
+
+        
+           
+            </div> 
+
+          </div> <!-- .col-md-8 -->
+         
+          
+          <div class="col-lg-4 sidebar ftco-animate">
+          <div class="sidebar-box ftco-animate">
+            <h3 class="heading-sidebar">Recent Projects</h3>
+            {% for p in projects %}
+            <div class="block-21 mb-4 d-flex">
+              <a class="blog-img mr-4" style="background-image: url('{% static p.projectimgurl %}');"></a>
+              <div class="text">
+                <h3 class="heading"><a href="{% url 'project_detail' p.id %}">{{ p.name }}</a></h3>
+                <div class="meta">
+                  <div><a href="{% url 'project_detail' p.id %}"><span class="icon-calendar"></span>{{ p.technologies_used }}</a></div>
+                  <div><a href="{% url 'project_detail' p.id %}"><span class="icon-search"></span>{{ p.fte_savings }}</a></div>
+                  
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+           
+          </div>
+        </div>
+
+        </div>
+      </div>
+    </section> <!-- .section -->
+		
+    {% endblock body %}
